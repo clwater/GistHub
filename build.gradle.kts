@@ -27,6 +27,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation("io.coil-kt:coil-compose:2.0.0")
             }
         }
         val jvmTest by getting
