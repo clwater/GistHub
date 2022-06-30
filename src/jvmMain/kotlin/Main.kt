@@ -10,7 +10,7 @@ import java.net.http.HttpResponse
 
 fun main() = application {
 
-    Requests.get()
+    Requests.get(api = Constancts.Gist_ListGists)
 
 
     Window(onCloseRequest = ::exitApplication) {

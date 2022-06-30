@@ -10,11 +10,11 @@ import java.net.http.HttpResponse
  */
 class Requests {
 	companion object{
-		fun get(){
+		fun get(url : String = Constancts.Gist_URL, api: String){
 			val client = HttpClient.newBuilder().build();
 			val request = HttpRequest.newBuilder()
 				.header("Authorization", "token " + Constancts.Gist_Token)
-				.uri(URI.create(Constancts.Gist_API + Constancts.Gist_ListGists))
+				.uri(URI.create(url + api))
 				.build();
 
 			val response = client.send(request, HttpResponse.BodyHandlers.ofString());
