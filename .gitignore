@@ -1,5 +1,5 @@
 .idea
-
+config/gist.config
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar

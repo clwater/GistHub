@@ -1,19 +1,26 @@
-import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.application
+import androidx.compose.material.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.window.*
+import androidx.compose.ui.ExperimentalComposeUiApi
 import ui.view.MainView
-import utils.Requests
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
+import ui.view.TokenDialog
+import ui.view.TokenDialogSaveCallBack
+import utils.ConfigFile
 
 
+@OptIn(ExperimentalComposeUiApi::class)
 fun main() = application {
-
-    Requests.get(api = Constancts.Gist_ListGists)
-
+    Constancts.Gist_Token = ConfigFile.getToken()
 
     Window(onCloseRequest = ::exitApplication) {
+        if (Constancts.Gist_Token.isEmpty()) {
+            TokenDialog(object : TokenDialogSaveCallBack {
+                override fun save(token: String) {
+                    println(token)
+                }
+            })
+        }
+
         MainView()
     }
 }

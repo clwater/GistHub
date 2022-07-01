@@ -70,8 +70,8 @@ fun MainView() {
                         }
 
                     }
-                    Column(modifier = Modifier.background(Color.Green).fillMaxHeight().fillMaxWidth()){
-                        Text("2", modifier = Modifier.background(Color.Green))
+                    Column(modifier = Modifier.fillMaxHeight().fillMaxWidth()){
+                        Text("2", modifier = Modifier)
                     }
 
                 }
