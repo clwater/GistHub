@@ -1,0 +1,32 @@
+@startuml
+
+@startuml
+hide empty description
+[*] --> Token_Check
+
+state Token_Check {
+    [*] --> File_Check
+    File_Check --> Check_Token : Gist_File_Info_Success
+    File_Check --> Set_Token_Dialog : Gist_File_Info_Fail
+    Set_Token_Dialog --> Check_Token
+    Check_Token --> Set_Token_Dialog : Check_Token_Fail
+    Check_Token --> HomePage : Check_Token_Success
+}
+
+state HomePage {
+    [*] --> HomeInfo
+    HomeInfo --> Get_Gist
+    Get_Gist --> HomeInfoSet
+
+    state HomeInfoSet{
+      [*] --> Set_User_Image
+      ||
+      [*] --> Set_Gist_Space
+      ||
+      [*] --> Set_Gist_List
+    }
+
+
+
+}
+@enduml

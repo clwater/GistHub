@@ -10,7 +10,7 @@ import java.net.http.HttpResponse
  */
 class Requests {
 	companion object{
-		fun get(url : String = Constancts.Gist_URL, api: String){
+		fun get(url : String = Constancts.Gist_URL, api: String): String{
 			val client = HttpClient.newBuilder().build();
 			val request = HttpRequest.newBuilder()
 				.header("Authorization", "token " + Constancts.Gist_Token)
@@ -18,7 +18,22 @@ class Requests {
 				.build();
 
 			val response = client.send(request, HttpResponse.BodyHandlers.ofString());
-			println(response.body())
+			return response.body()
+		}
+
+		fun gist(api: String): String{
+			return get(api = Constancts.Gist_ListGists)
+		}
+
+		fun checkToken(token: String) : Boolean{
+			val client = HttpClient.newBuilder().build();
+			val request = HttpRequest.newBuilder()
+				.header("Authorization", "token " + token)
+				.uri(URI.create(Constancts.Gist_URL + Constancts.Gist_ListGists))
+				.build();
+
+			val response = client.send(request, HttpResponse.BodyHandlers.ofString())
+			return response.statusCode() == 200
 		}
 
 	}

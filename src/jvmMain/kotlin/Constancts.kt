@@ -3,7 +3,7 @@
  */
 class Constancts {
 	companion object{
-		var Gist_Token = "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"
+		var Gist_Token = "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"
 		val Gist_URL = "https://api.github.com/"
 		val Gist_ListGists = "gists"
 	}
