@@ -1,5 +1,6 @@
 package ui.view
 
+import Constancts
 import androidx.compose.desktop.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import enity.Gist
 import model.Gists
 import utils.Requests
 import kotlin.concurrent.thread
@@ -27,6 +29,9 @@ fun MainView() {
     var avatar by remember { mutableStateOf("") }
     thread {
         avatar = getAvatarImage()
+    }
+    thread {
+        test()
     }
     MaterialTheme {
         Box(
@@ -78,15 +83,60 @@ fun MainView() {
 }
 
 
-fun getAvatarImage() :String{
-    val gists = Requests.gist()
-    val listOfPersonsType = Types.newParameterizedType(List::class.java, Gists::class.java)
+fun test(){
+    val listOfGistsType = Types.newParameterizedType(List::class.java, Gists::class.java)
     val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
         .build()
 
-    val adapter = moshi.adapter<List<Gists>>(listOfPersonsType)
-    val persons = adapter.fromJson(gists)
-    return persons?.get(0)?.owner?.avatar_url.toString()
+    val adapter = moshi.adapter<List<Gists>>(listOfGistsType)
+    val gists = adapter.fromJson(Requests.gist())
+
+    gists?.forEach {
+        val gist = Gist()
+        gist.isFix = checkIsFix(it.files)
+        gist.spaceName = getSpaceName(it.files)
+
+        Constancts.Gists.add(gist)
+    }
+
+    Constancts.Gists.forEach{
+        println(it)
+    }
+
+}
+
+fun  getSpaceName(files: Any): String{
+    val map = files as Map<*, *>
+    val pattern = ".* \\[.*\\]".toRegex()
+    map.mapValues {
+        if (!pattern.containsMatchIn(it.key.toString())) {
+            return it.key.toString()
+        }
+    }
+    return ""
+}
+
+fun checkIsFix(files: Any): Boolean{
+    val map = files as Map<*, *>
+    var ifFix = false;
+    val pattern = ".* \\[.*\\]".toRegex()
+    map.mapValues {
+        if (pattern.containsMatchIn(it.key.toString())) {
+            ifFix = true
+        }
+    }
+    return ifFix
+}
+
+fun getAvatarImage() :String{
+    val listOfGistsType = Types.newParameterizedType(List::class.java, Gists::class.java)
+    val moshi = Moshi.Builder()
+        .addLast(KotlinJsonAdapterFactory())
+        .build()
+
+    val adapter = moshi.adapter<List<Gists>>(listOfGistsType)
+    val gists = adapter.fromJson(Requests.gist())
+    return gists?.get(0)?.owner?.avatar_url.toString()
 
 }
