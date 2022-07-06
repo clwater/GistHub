@@ -21,7 +21,7 @@ class Requests {
 			return response.body()
 		}
 
-		fun gist(api: String): String{
+		fun gist(): String{
 			return get(api = Constancts.Gist_ListGists)
 		}
 
