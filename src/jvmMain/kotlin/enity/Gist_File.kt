@@ -9,4 +9,5 @@ data class Gist_File(
     var size:Int = 0,
     var truncated:Boolean = false,
     var content:String = "",
+    var isLoaclShow :Boolean = true,
 )
