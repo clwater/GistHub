@@ -25,11 +25,21 @@ fun getSpaceFiles(files: Any) : List<Gist_File>{
         gistFile.size = (file["size"] as Double).toInt()
         gistFile.truncated = file["truncated"] as Boolean
         gistFile.content = file["content"].toString()
+        gistFile.showName = getShowName(gistFile.filename)
+        gistFile.isSpace = gistFile.showName.isEmpty() || gistFile.showName == "null"
         list.add(gistFile)
     }
     return list
 }
 
+fun getShowName(name: String): String{
+    val parttern = Regex("""\[.*\]""")
+    var showName =  parttern.find(name)?.value.toString()
+    showName = showName.replace("[", "")
+    showName = showName.replace("]", "")
+    return showName
+
+}
 
 fun  getSpaceName(files: Any): String{
     val map = files as Map<*, *>
