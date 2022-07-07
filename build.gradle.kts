@@ -31,6 +31,7 @@ kotlin {
                 implementation("io.coil-kt:coil-compose:2.0.0")
                 implementation("com.squareup.moshi:moshi-kotlin-codegen:1.13.0")
                 implementation("com.squareup.moshi:moshi-kotlin:1.13.0")
+                implementation("androidx.compose.material:material-icons-extended:1.1.0")
             }
         }
         val jvmTest by getting

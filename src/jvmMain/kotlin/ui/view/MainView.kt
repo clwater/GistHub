@@ -2,15 +2,22 @@ package ui.view
 
 import Constancts
 import androidx.compose.desktop.ui.tooling.preview.Preview
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
@@ -18,6 +25,9 @@ import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import enity.Gist
 import model.Gists
 import utils.Requests
+import utils.getAvatarImage
+import utils.swapList
+import viewmodel.FilesViewer
 import kotlin.concurrent.thread
 
 /**
@@ -27,12 +37,26 @@ import kotlin.concurrent.thread
 @Composable
 fun MainView() {
     var avatar by remember { mutableStateOf("") }
-    thread {
+    var spaceList by remember { mutableStateOf(Constancts.Gists) }
+    val spaceShow = remember { mutableStateListOf<Gist>() }
+    val filesViewer = remember {
+        FilesViewer(
+            spaceName = "",
+            files = mutableListOf()
+        )
+    }
+
+//    thread {
         avatar = getAvatarImage()
-    }
-    thread {
-        test()
-    }
+        Requests.updateAllGis()
+        spaceShow.clear()
+        spaceShow.swapList(Constancts.Gists)
+        if (Constancts.Gists.isNotEmpty()){
+            Requests.getGist(Constancts.Gists[0].url)
+            filesViewer.files = Constancts.filesViewer.files
+            filesViewer.spaceName = Constancts.filesViewer.spaceName
+        }
+//    }
     MaterialTheme {
         Box(
             modifier = Modifier.fillMaxSize()
@@ -58,12 +82,41 @@ fun MainView() {
                                     .clip(CircleShape)
                             )
                         }
+                        Row {
+                            Button(
+                                onClick = {
+                                    thread {
+                                        Requests.updateAllGis()
+                                        spaceShow.clear()
+                                        spaceShow.swapList(Constancts.Gists)
+                                    }
+                                }
+                            ){
+                                Text("refresh")
+                            }
+                        }
 
                     }
                     Column(modifier = Modifier.fillMaxSize(1f)) {
                         //Space部分
                         Column(modifier = Modifier.heightIn(min = 300.dp).weight(0.7f).fillMaxWidth(1f)) {
                             Text("Space")
+                            LazyColumn(modifier = Modifier.background(Color.Gray).fillMaxWidth()) {
+                                items(spaceShow){
+                                    val text = if (it.isFix){
+                                        AnnotatedString(it.spaceName)
+                                    }else{
+                                        AnnotatedString("[未适配] ${it.spaceName}")
+                                    }
+
+                                    ClickableText(
+                                        onClick = {
+                                        },
+                                        text = text,
+                                        modifier = Modifier,
+                                    )
+                                }
+                            }
                         }
                         //Tag部分
                         Column(modifier = Modifier.heightIn(max = 300.dp).weight(0.3f).fillMaxWidth()) {
@@ -73,7 +126,7 @@ fun MainView() {
 
                 }
                 Column(modifier = Modifier.fillMaxHeight().fillMaxWidth()) {
-                    Text("2", modifier = Modifier)
+                    FileViewerView(filesViewer)
                 }
 
             }
@@ -82,61 +135,3 @@ fun MainView() {
 
 }
 
-
-fun test(){
-    val listOfGistsType = Types.newParameterizedType(List::class.java, Gists::class.java)
-    val moshi = Moshi.Builder()
-        .addLast(KotlinJsonAdapterFactory())
-        .build()
-
-    val adapter = moshi.adapter<List<Gists>>(listOfGistsType)
-    val gists = adapter.fromJson(Requests.gist())
-
-    gists?.forEach {
-        val gist = Gist()
-        gist.isFix = checkIsFix(it.files)
-        gist.spaceName = getSpaceName(it.files)
-
-        Constancts.Gists.add(gist)
-    }
-
-    Constancts.Gists.forEach{
-        println(it)
-    }
-
-}
-
-fun  getSpaceName(files: Any): String{
-    val map = files as Map<*, *>
-    val pattern = ".* \\[.*\\]".toRegex()
-    map.mapValues {
-        if (!pattern.containsMatchIn(it.key.toString())) {
-            return it.key.toString()
-        }
-    }
-    return ""
-}
-
-fun checkIsFix(files: Any): Boolean{
-    val map = files as Map<*, *>
-    var ifFix = false;
-    val pattern = ".* \\[.*\\]".toRegex()
-    map.mapValues {
-        if (pattern.containsMatchIn(it.key.toString())) {
-            ifFix = true
-        }
-    }
-    return ifFix
-}
-
-fun getAvatarImage() :String{
-    val listOfGistsType = Types.newParameterizedType(List::class.java, Gists::class.java)
-    val moshi = Moshi.Builder()
-        .addLast(KotlinJsonAdapterFactory())
-        .build()
-
-    val adapter = moshi.adapter<List<Gists>>(listOfGistsType)
-    val gists = adapter.fromJson(Requests.gist())
-    return gists?.get(0)?.owner?.avatar_url.toString()
-
-}
