@@ -18,9 +18,12 @@ import viewmodel.FilesViewer
 
 @Composable
 fun FileViewerView(model: FilesViewer) {
+    println(model.spaceName)
     if (model.files.isEmpty()){
         EditorEmptyView()
     }else {
+        Text(modifier = Modifier.padding(12.dp),
+            text = model.spaceName)
         LazyColumn {
             items(model.files){
                 if (!it.isSpace) {
@@ -43,7 +46,7 @@ fun FileItem(gistFile: Gist_File){
                     text = gistFile.showName
                 )
 
-            Row(modifier = Modifier, horizontalArrangement = Arrangement.End) {
+            Row(modifier = Modifier.padding(end = 12.dp), horizontalArrangement = Arrangement.End) {
                 Button(
                     modifier = Modifier,
                     onClick = {

@@ -108,12 +108,20 @@ fun MainView() {
                                     }else{
                                         AnnotatedString("[未适配] ${it.spaceName}")
                                     }
-
+                                    val url = it.url
+                                    val model = it
                                     ClickableText(
                                         onClick = {
+                                            model.open()
+//                                            filesViewer.files = arrayListOf()
+//                                            filesViewer.spaceName = ""
+//                                            println(url)
+//                                            Requests.getGist(url)
+//                                            filesViewer.files = Constancts.filesViewer.files
+//                                            filesViewer.spaceName = Constancts.filesViewer.spaceName
                                         },
                                         text = text,
-                                        modifier = Modifier,
+                                        modifier = Modifier.padding(8.dp),
                                     )
                                 }
                             }
@@ -134,4 +142,6 @@ fun MainView() {
     }
 
 }
+
+
 
