@@ -40,24 +40,22 @@ fun MainView() {
         val editors = Editors()
         GistHub(
             editors = editors,
-            spaces = Spaces()
-        )
-    }
-    val filesViewer = remember {
-        FilesViewer(
-            spaceName = "",
-            files = mutableListOf()
+            spaces = Spaces(),
+
+            filesViewer = FilesViewer(
+                spaceName = "",
+                files = mutableListOf()
+            )
         )
     }
 
+    val a =  remember { mutableListOf(false) }
 //    thread {
         gistHub.editors.avatar = getAvatarImage()
     gistHub.spaces.items = Requests.updateAllGis()
 
         if (gistHub.spaces.items.isNotEmpty()){
-            Requests.getGist(gistHub.spaces.items[0].url)
-            filesViewer.files = Constancts.filesViewer.files
-            filesViewer.spaceName = Constancts.filesViewer.spaceName
+            gistHub.filesViewer = Requests.getGist(gistHub.spaces.items[0].url)
         }
 //    }
     MaterialTheme {
@@ -106,6 +104,7 @@ fun MainView() {
                                 Text("Space")
                                 LazyColumn(modifier = Modifier.background(Color.Gray).fillMaxWidth()) {
                                     items(gistHub.spaces.items){
+                                        val item = it
                                         val text = if (it.isFix){
                                             AnnotatedString(it.spaceName)
                                         }else{
@@ -115,7 +114,11 @@ fun MainView() {
                                         val model = it
                                         ClickableText(
                                             onClick = {
-                                                model.open()
+//                                                println(item.spaceName)
+//                                                gistHub.filesViewer = Requests.getGist(item.url)
+                                                gistHub.filesViewer = FilesViewer("", emptyList())
+//                                                gistHub.filesViewer.open(item.url)
+//                                                model.open()
                                             },
                                             text = text,
                                             modifier = Modifier.padding(8.dp),
@@ -130,8 +133,9 @@ fun MainView() {
                         }
 
                     }
+
                     Column(modifier = Modifier.fillMaxHeight().fillMaxWidth()) {
-                        FileViewerView(filesViewer)
+                        FileViewerView(gistHub.filesViewer)
                     }
 
                 }

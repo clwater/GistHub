@@ -15,17 +15,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import enity.Gist_File
 import viewmodel.FilesViewer
+import viewmodel.GistHub
 
 @Composable
-fun FileViewerView(model: FilesViewer) {
-    println(model.spaceName)
-    if (model.files.isEmpty()){
+fun FileViewerView(filesViewer: FilesViewer) {
+
+
+    println("FileViewerView:" + filesViewer.spaceName)
+    if (filesViewer.files.isEmpty()){
         EditorEmptyView()
     }else {
         Text(modifier = Modifier.padding(12.dp),
-            text = model.spaceName)
+            text = filesViewer.spaceName)
         LazyColumn {
-            items(model.files){
+            items(filesViewer.files){
                 if (!it.isSpace) {
                     FileItem(it)
                 }

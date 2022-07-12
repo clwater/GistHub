@@ -6,6 +6,7 @@ import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import enity.Gist
 import model.Gists
+import viewmodel.FilesViewer
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
@@ -27,7 +28,8 @@ class Requests {
 			return response.body()
 		}
 
-		fun getGist(url : String){
+		fun getGist(url : String): FilesViewer {
+			val filesViewer = FilesViewer("", emptyList())
 			val client = HttpClient.newBuilder().build();
 			val request = HttpRequest.newBuilder()
 				.header("Authorization", "token " + Constancts.Gist_Token)
@@ -41,8 +43,9 @@ class Requests {
 
 			val adapter = moshi.adapter<Gists>(Gists::class.java)
 			val gists = adapter.fromJson(response.body())
-			Constancts.filesViewer.spaceName = getSpaceName(gists!!.files)
-			Constancts.filesViewer.files = getSpaceFiles(gists.files)
+			filesViewer.spaceName = getSpaceName(gists!!.files)
+			filesViewer.files = getSpaceFiles(gists.files)
+			return filesViewer
 		}
 
 		fun getGistWithIndex(index: Int): String{

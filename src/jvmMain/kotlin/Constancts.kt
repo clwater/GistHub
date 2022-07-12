@@ -11,8 +11,6 @@ class Constancts {
 		const val Gist_ListGists = "gists"
 
 		const val Gist_Per_Page = 30
-		var Gists = mutableListOf<Gist>()
 
-		var filesViewer = FilesViewer(files = arrayListOf(), spaceName = "")
 	}
 }
