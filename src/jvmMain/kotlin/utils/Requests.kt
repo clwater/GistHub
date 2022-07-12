@@ -66,9 +66,10 @@ class Requests {
 			val response = client.send(request, HttpResponse.BodyHandlers.ofString())
 			return response.statusCode() == 200
 		}
-		fun updateAllGis(){
+		fun updateAllGis(): MutableList<Gist> {
 			var index = 1
-			Constancts.Gists.clear()
+			val list = mutableListOf<Gist>()
+//			Constancts.Gists.clear()
 			while (true) {
 //				println("index: $index")
 				val listOfGistsType = Types.newParameterizedType(List::class.java, Gists::class.java)
@@ -87,10 +88,12 @@ class Requests {
 					gist.isFix = checkIsFix(it.files)
 					gist.spaceName = getSpaceName(it.files)
 					gist.url = it.url
-					Constancts.Gists.add(gist)
+//					Constancts.Gists.add(gist)
+					list.add(gist)
 				}
 				index++
 			}
+			return list
 
 //			Constancts.Gists.forEach {
 //				println(it)
