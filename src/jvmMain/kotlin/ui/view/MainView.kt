@@ -42,10 +42,7 @@ fun MainView() {
             editors = editors,
             spaces = Spaces(),
 
-            filesViewer = FilesViewer(
-                spaceName = "",
-                files = mutableListOf()
-            )
+            filesViewer = mutableStateListOf()
         )
     }
 
@@ -55,7 +52,8 @@ fun MainView() {
     gistHub.spaces.items = Requests.updateAllGis()
 
         if (gistHub.spaces.items.isNotEmpty()){
-            gistHub.filesViewer = Requests.getGist(gistHub.spaces.items[0].url)
+            gistHub.filesViewer.clear()
+            gistHub.filesViewer.add(Requests.getGist(gistHub.spaces.items[0].url))
         }
 //    }
     MaterialTheme {
@@ -114,11 +112,8 @@ fun MainView() {
                                         val model = it
                                         ClickableText(
                                             onClick = {
-//                                                println(item.spaceName)
-//                                                gistHub.filesViewer = Requests.getGist(item.url)
-                                                gistHub.filesViewer = FilesViewer("", emptyList())
-//                                                gistHub.filesViewer.open(item.url)
-//                                                model.open()
+                                                gistHub.filesViewer.clear()
+                                                gistHub.filesViewer.add(Requests.getGist(item.url))
                                             },
                                             text = text,
                                             modifier = Modifier.padding(8.dp),
@@ -135,7 +130,7 @@ fun MainView() {
                     }
 
                     Column(modifier = Modifier.fillMaxHeight().fillMaxWidth()) {
-                        FileViewerView(gistHub.filesViewer)
+                        FileViewerView(gistHub.filesViewer[0])
                     }
 
                 }

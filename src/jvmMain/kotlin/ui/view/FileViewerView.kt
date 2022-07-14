@@ -19,9 +19,6 @@ import viewmodel.GistHub
 
 @Composable
 fun FileViewerView(filesViewer: FilesViewer) {
-
-
-    println("FileViewerView:" + filesViewer.spaceName)
     if (filesViewer.files.isEmpty()){
         EditorEmptyView()
     }else {
@@ -34,7 +31,6 @@ fun FileViewerView(filesViewer: FilesViewer) {
                 }
             }
         }
-//        Text("2", modifier = Modifier)
     }
 }
 
