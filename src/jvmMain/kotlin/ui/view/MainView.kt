@@ -41,7 +41,6 @@ fun MainView() {
         GistHub(
             editors = editors,
             spaces = Spaces(),
-
             filesViewer = mutableStateListOf()
         )
     }
@@ -112,8 +111,10 @@ fun MainView() {
                                         val model = it
                                         ClickableText(
                                             onClick = {
-                                                gistHub.filesViewer.clear()
-                                                gistHub.filesViewer.add(Requests.getGist(item.url))
+                                                if (model.spaceName != gistHub.filesViewer[0].spaceName) {
+                                                    gistHub.filesViewer.clear()
+                                                    gistHub.filesViewer.add(Requests.getGist(item.url))
+                                                }
                                             },
                                             text = text,
                                             modifier = Modifier.padding(8.dp),

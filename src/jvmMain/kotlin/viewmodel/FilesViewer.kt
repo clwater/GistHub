@@ -5,13 +5,10 @@ import utils.Requests
 
 class FilesViewer (
     var spaceName : String,
-    var files: List<Gist_File>
+    var files: List<Gist_File>,
+    var isChange : Boolean = false,
 ){
-    fun open(url: String){
-        println("url: $url")
-        val filesViewer = Requests.getGist(url)
-        spaceName = filesViewer.spaceName
-        files = filesViewer.files
-        println("FilesViewer open: $spaceName")
+    fun test(){
+        println("text")
     }
 }
