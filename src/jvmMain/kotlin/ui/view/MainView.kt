@@ -111,7 +111,7 @@ fun MainView() {
                                         val model = it
                                         ClickableText(
                                             onClick = {
-                                                if (model.spaceName != gistHub.filesViewer[0].spaceName) {
+                                                if (model.spaceName != gistHub.filesViewer[0].spaceName.value) {
                                                     gistHub.filesViewer.clear()
                                                     gistHub.filesViewer.add(Requests.getGist(item.url))
                                                 }

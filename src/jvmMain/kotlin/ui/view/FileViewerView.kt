@@ -1,120 +1,124 @@
 package ui.view
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import enity.Gist_File
 import ui.weight.TooltipButton
-import utils.ConfigFile
 import viewmodel.FilesViewer
 
-val reNameSpaceDialog = ReNameDialog()
-val reNameFileDialog = ReNameDialog()
+var baseFilesViewer by  mutableStateOf(FilesViewer(mutableStateOf(""), mutableListOf()))
+var useFilesViewer by  mutableStateOf(FilesViewer(mutableStateOf(""), mutableListOf()))
 
-interface GistFileCallBack {
-    fun update(gistFile: Gist_File)
+var isChanged by mutableStateOf(false)
+fun checkGistChanges() {
+    if (baseFilesViewer.spaceName != useFilesViewer.spaceName) {
+        isChanged = true
+    }
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
 @Composable
-fun FileViewerView(filesViewer: FilesViewer) {
-    val gistFile = remember {
-        mutableStateOf(filesViewer.files)
-    }
-    val canPull = remember {
-        mutableStateOf(1)
-    }
-    val canPush = remember {
-        mutableStateOf(1)
-    }
-    var spaceName by remember { mutableStateOf(filesViewer.spaceName) }
-    var spaceNameChange by remember { mutableStateOf(false) }
+fun FileViewerView(filesViewer: FilesViewer){
+    baseFilesViewer.files = filesViewer.files
+    baseFilesViewer.spaceName.value = filesViewer.spaceName.value
+    useFilesViewer.files = filesViewer.files
+    useFilesViewer.spaceName.value = filesViewer.spaceName.value
 
+    FileTopView()
+    FileBodyView()
+}
+
+
+fun updateFiles(){
+    val _spaceName = useFilesViewer.spaceName.value
+    useFilesViewer.spaceName.value = ""
+    useFilesViewer.spaceName.value = _spaceName
+}
+
+@Composable
+fun FileTopView() {
+    val reNameSpaceDialog = ReNameDialog()
     val saveCallBack = object : ReNameDialogSaveCallBack {
         override fun save(name: String) {
-            spaceName = name
-            spaceNameChange = spaceName != filesViewer.spaceName
-            filesViewer.isChange = filesViewer.isChange || spaceNameChange
-            canPush.value = if (filesViewer.isChange) {
-                1
-            } else {
-                2
-            }
+            useFilesViewer.spaceName.value = name
         }
     }
-
-    val gistFileCallBack = object : GistFileCallBack{
-        override fun update(gistFile: Gist_File) {
-            
-        }
-    }
-
     reNameSpaceDialog.init(saveCallBack)
-
-
-
-    if (filesViewer.files.isEmpty()) {
-        EditorEmptyView()
-    } else {
+    Column {
         Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth().padding(end = 12.dp)) {
             Text(
                 modifier = Modifier.padding(12.dp)
-//                    .background(if (spaceNameChange) { Color.Yellow } else { Color.Transparent })
+                    .background(if (isChanged) { Color.Yellow } else { Color.Transparent })
                 ,
-                text = spaceName
+                text = useFilesViewer.spaceName.value
             )
 
             Row {
-                TooltipButton("pull -f", "重新获取最新Gist, 覆盖当前内容", canPull.value) {
-                    canPull.value = 1
-                    filesViewer.isChange = false
-                    canPush.value = if (filesViewer.isChange) {
-                        1
-                    } else {
-                        2
-                    }
+                TooltipButton("pull -f", "重新获取最新Gist, 覆盖当前内容") {
+                    println("pull -f")
+                    useFilesViewer.files = baseFilesViewer.files
+                    useFilesViewer.spaceName.value = baseFilesViewer.spaceName.value
+//                useFilesViewer.spaceName.value = "
+                    updateFiles()
                 }
-                TooltipButton("push -f", "提交当前内容到Gist", canPush.value) {
+                TooltipButton("push -f", "提交当前内容到Gist",
+                    if (isChanged){1}else{2}
+                ) {
                     println("push -f")
-                    filesViewer.isChange = false
-                    canPush.value = if (filesViewer.isChange) {
-                        1
-                    } else {
-                        2
-                    }
+                    isChanged = false
                 }
                 TooltipButton("rename", "重命名Gist") {
-                    reNameSpaceDialog.show(true, spaceName)
+                    reNameSpaceDialog.show(true, useFilesViewer.spaceName.value)
                 }
 
             }
         }
+        Text("Add File ToDo")
+    }
+
+}
+@Composable
+fun FileBodyView() {
+    Text(useFilesViewer.spaceName.value)
+
+    if (useFilesViewer.files.isEmpty()) {
+        EditorEmptyView()
+    } else {
 
         LazyColumn {
-            items(filesViewer.files) {
-                if (!it.isSpace) {
-                    FileItem(it, gistFileCallBack)
+            useFilesViewer.files.forEachIndexed() { index, gistFile ->
+                item {
+                    if (!gistFile.isSpace) {
+                        FileItem(gistFile, index)
+                    }
                 }
             }
+
+
         }
     }
 }
 
+
+
 @Composable
-fun FileItem(_gistFile: Gist_File, gistFileCallBack: GistFileCallBack) {
+fun FileItem(_gistFile: Gist_File, index: Int) {
+    val reNameFileDialog = ReNameDialog()
     val gistFile by remember { mutableStateOf(_gistFile) }
+
+//    println(gistFile.content)
     val saveCallBack = object : ReNameDialogSaveCallBack {
         override fun save(name: String) {
-            gistFile.showName = name
-            gistFileCallBack.update(gistFile)
+            gistFile.showName.value = name
+            useFilesViewer.files[index] = gistFile
         }
     }
     reNameFileDialog.init(saveCallBack)
@@ -124,12 +128,12 @@ fun FileItem(_gistFile: Gist_File, gistFileCallBack: GistFileCallBack) {
             Text(
                 modifier = Modifier.padding(12.dp),
                 color = Color(0xFF82B1FF),
-                text = gistFile.showName
+                text = gistFile.showName.value
             )
 
             Row(modifier = Modifier.padding(end = 12.dp), horizontalArrangement = Arrangement.End) {
                 TooltipButton("rename", "重命名Gist") {
-                    reNameFileDialog.show(false, gistFile.showName)
+                    reNameFileDialog.show(false, gistFile.showName.value)
                 }
                 Button(
                     modifier = Modifier,
@@ -158,7 +162,7 @@ fun FileItem(_gistFile: Gist_File, gistFileCallBack: GistFileCallBack) {
 //                .padding(12.dp)
                     .border(BorderStroke(2.dp, Color.Red))
                     .padding(12.dp),
-                text = gistFile.content
+                text = gistFile.content.value
             )
         }
     }

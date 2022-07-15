@@ -19,14 +19,14 @@ fun getSpaceFiles(files: Any) : List<Gist_File>{
     map.mapValues {
         val file = it.value as Map<*, *>
         val gistFile = Gist_File()
-        gistFile.filename = file["filename"].toString()
+        gistFile.filename.value = file["filename"].toString()
         gistFile.type = file["type"].toString()
         gistFile.raw_url = file["raw_url"].toString()
         gistFile.size = (file["size"] as Double).toInt()
         gistFile.truncated = file["truncated"] as Boolean
-        gistFile.content = file["content"].toString()
-        gistFile.showName = getShowName(gistFile.filename)
-        gistFile.isSpace = gistFile.showName.isEmpty() || gistFile.showName == "null"
+        gistFile.content.value = file["content"].toString()
+        gistFile.showName.value = getShowName(gistFile.filename.value)
+        gistFile.isSpace = gistFile.showName.value.isEmpty() || gistFile.showName.value == "null"
         list.add(gistFile)
     }
     return list

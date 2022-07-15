@@ -1,6 +1,7 @@
 package utils
 
 import Constancts
+import androidx.compose.runtime.mutableStateOf
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -29,7 +30,7 @@ class Requests {
 		}
 
 		fun getGist(url : String): FilesViewer {
-			val filesViewer = FilesViewer("", emptyList())
+			val filesViewer = FilesViewer(mutableStateOf(""), mutableListOf())
 			val client = HttpClient.newBuilder().build();
 			val request = HttpRequest.newBuilder()
 				.header("Authorization", "token " + Constancts.Gist_Token)
@@ -43,8 +44,8 @@ class Requests {
 
 			val adapter = moshi.adapter<Gists>(Gists::class.java)
 			val gists = adapter.fromJson(response.body())
-			filesViewer.spaceName = getSpaceName(gists!!.files)
-			filesViewer.files = getSpaceFiles(gists.files)
+			filesViewer.spaceName.value = getSpaceName(gists!!.files)
+			filesViewer.files.addAll(getSpaceFiles(gists.files))
 			return filesViewer
 		}
 
