@@ -1,5 +1,3 @@
-import enity.Gist
-import viewmodel.FilesViewer
 
 /**
  * Create by clwater on 2022/6/30.
