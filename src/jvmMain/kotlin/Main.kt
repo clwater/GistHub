@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import ui.common.RootContent
 import utils.ConfigFile
 
 
@@ -23,5 +24,10 @@ fun main() = application {
 		state = WindowState(width = 1280.dp, height = 768.dp),
 		icon = BitmapPainter(useResource("ic_launcher.png", ::loadImageBitmap)),
 	) {
+		MaterialTheme {
+			RootContent(
+				modifier = Modifier.fillMaxSize()
+			)
+		}
 	}
 }
