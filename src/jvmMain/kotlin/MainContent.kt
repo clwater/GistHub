@@ -17,12 +17,13 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import enity.GistInfoItem
+import enity.GistTableInfoItem
 
 @Composable
 internal fun MainContent(
     modifier: Modifier = Modifier,
     items : List<GistTitleItem>,
-    gists : List<GistInfoItem>,
+    gists : List<GistTableInfoItem>,
     onItemClicked: (id: String) -> Unit,
     spaceName: String,
     onAddItemClicked: () -> Unit,
@@ -38,10 +39,21 @@ internal fun MainContent(
                     )
 
                 }
-                Box(modifier = Modifier.weight(1f)){
+                Box(modifier = Modifier.padding(12.dp).weight(1f)){
                     Column {
-                        Text(text = spaceName)
-                        GistListContent(items = gists)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ){
+                            Text(text = spaceName, modifier = Modifier.weight(1f))
+                            Button(onClick = {}){
+                                Text("Edit")
+                            }
+                        }
+                        gists.forEach {
+                            if (it.isShow){
+                                GistListContent(items = it.gists)
+                            }
+                        }
                     }
                 }
 

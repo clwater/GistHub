@@ -2,6 +2,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import enity.GistInfoItem
+import enity.GistTableInfoItem
 import enity.GistTitleItem
 
 
@@ -15,7 +16,7 @@ internal class RootStore  {
         val chooseId: String? = null,
         val spaceName : String = "",
         val tagList: List<String> = emptyList(),
-        val gists : List<GistInfoItem> = emptyList(),
+        val gistTableInfo: List<GistTableInfoItem> = emptyList()
     )
 
     //获取显示的数据
@@ -30,9 +31,28 @@ internal class RootStore  {
 
     fun onItemClicked(id: String) {
         setState {
-            copy(chooseId = id, spaceName = "new Choose  $id",
-                gists =  getShowGistInfo(id)
+            var inCache = false
+            gistTableInfo.forEach { item ->
+                if (item.id == id){
+                    item.isShow = true
+                    inCache = true
+                }else{
+                    item.isShow = false
+                }
+            }
+            if(inCache){
+                copy(chooseId = id)
+            }else{
+                val newItem = GistTableInfoItem(spaceName = "spaceName $id",
+                    gists = getShowGistInfo(id),
+                    isShow =  true,
+                    id = id
                 )
+                copy(chooseId = id,
+                    gistTableInfo = gistTableInfo + newItem
+                    )
+
+            }
         }
     }
 
@@ -60,11 +80,6 @@ internal class RootStore  {
             ),
             spaceName = "_spaceName",
             tagList = arrayListOf("tag1", "tag2"),
-            gists =  arrayListOf(
-                GistInfoItem(name = "_name_1",text = "_text_1"),
-                GistInfoItem(name = "_name_2",text = "_text_2"),
-                GistInfoItem(name = "_name_3",text = "_text_3"),
-            )
         )
 
     private inline fun setState(update: RootState.() -> RootState) {

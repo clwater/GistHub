@@ -16,7 +16,7 @@ fun RootContent(modifier: Modifier = Modifier) {
     MainContent(
         modifier = modifier,
         items = state.items,
-        gists = state.gists,
+        gists = state.gistTableInfo,
         spaceName = state.spaceName,
         onAddItemClicked = model::onAddItemClicked,
         onItemClicked = model::onItemClicked,
