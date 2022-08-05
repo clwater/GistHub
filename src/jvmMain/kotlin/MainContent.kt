@@ -1,19 +1,20 @@
-import androidx.compose.foundation.VerticalScrollbar
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import enity.GistTitleItem
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import enity.GistInfoItem
@@ -26,7 +27,11 @@ internal fun MainContent(
     gists : List<GistTableInfoItem>,
     onItemClicked: (id: String) -> Unit,
     spaceName: String,
+    chooseId: String,
     onAddItemClicked: () -> Unit,
+    onSpaceTitleChange: (id: String) -> Unit,
+    onSpaceEditChange: (id: String, inEdit:  Boolean) -> Unit,
+    onSpaceClose: (id: String) -> Unit,
 ){
     Column(){
         TopAppBar(title = { Text(text = "Todo List") })
@@ -41,11 +46,31 @@ internal fun MainContent(
                 }
                 Box(modifier = Modifier.padding(12.dp).weight(1f)){
                     Column {
+                        val listState = rememberLazyListState()
+                        LazyRow(state = listState) {
+                            items(gists){
+                                SpacesTitleBar(item = it,
+                                    onSpaceTitleChange = onSpaceTitleChange,
+                                    onSpaceClose = onSpaceClose,
+                                )
+                            }
+                        }
+//                        Row(modifier = Modifier.horizontalScroll(rememberScrollState())){
+//                            gists.forEach {
+//                                SpacesTitleBar(item = it,
+//                                    onSpaceTitleChange = onSpaceTitleChange,
+//                                    onSpaceClose = onSpaceClose,
+//                                )
+//                                Text(text = it.spaceName)
+//                            }
+//                        }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ){
                             Text(text = spaceName, modifier = Modifier.weight(1f))
-                            Button(onClick = {}){
+                            Button(onClick = {
+                                onSpaceEditChange(chooseId, true)
+                            }){
                                 Text("Edit")
                             }
                         }
@@ -60,6 +85,47 @@ internal fun MainContent(
             }
         }
         Input(onAddClicked = onAddItemClicked)
+    }
+}
+//Space标题栏
+@Composable
+private fun SpacesTitleBar(
+    item: GistTableInfoItem,
+    onSpaceTitleChange: (id: String) -> Unit,
+    onSpaceClose: (id: String) -> Unit
+    ) = Surface(
+    color = if (item.isShow && item.inEdit) {
+        Color.Red
+    } else if (item.isShow && !item.inEdit) {
+        Color.Green
+    } else if (!item.isShow && item.inEdit) {
+        Color.Blue
+    } else {
+        Color.Transparent
+    }
+){
+    Row(
+        modifier = Modifier.padding(4.dp)
+            .clickable {
+                onSpaceTitleChange(item.id)
+            },
+        verticalAlignment = Alignment.CenterVertically){
+        if(item.inEdit){
+            Text(text = item.spaceName + "(未保存)")
+        }else{
+            Text(text = item.spaceName)
+        }
+        Icon(
+            Icons.Default.Close,
+            tint = LocalContentColor.current,
+            contentDescription = "Close",
+            modifier = Modifier
+                .size(24.dp)
+                .padding(4.dp)
+                .clickable {
+                    onSpaceClose(item.id)
+                }
+        )
     }
 }
 

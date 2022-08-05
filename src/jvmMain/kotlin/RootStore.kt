@@ -13,7 +13,7 @@ internal class RootStore  {
     data class RootState(
         val items: List<GistTitleItem> = emptyList(),
         val inputText: String = "",
-        val chooseId: String? = null,
+        val chooseId: String = "",
         val spaceName : String = "",
         val tagList: List<String> = emptyList(),
         val gistTableInfo: List<GistTableInfoItem> = emptyList()
@@ -28,6 +28,43 @@ internal class RootStore  {
             GistInfoItem(name = "_name_3  $id",text = "_text_3  $id"),
         )
     }
+
+    //space title 选择
+    fun onSpaceTitleChange(id: String){
+        setState {
+            gistTableInfo.forEach { item ->
+                item.isShow = item.id == id
+            }
+            copy(
+                chooseId = id
+            )
+        }
+    }
+    fun onSpaceEditChange(id: String, inEdit: Boolean){
+        setState {
+            gistTableInfo.forEach { item ->
+                if (item.id == id){
+                    item.inEdit = inEdit
+                }
+            }
+            copy(gistTableInfo = gistTableInfo)
+        }
+    }
+
+    fun onSpaceClose(id: String){
+        setState {
+            var chooseId = ""
+            if (gistTableInfo.filterNot { it.id == id }.isNotEmpty()){
+                chooseId = gistTableInfo.filterNot { it.id == id }[0].id
+            }
+            onSpaceTitleChange(chooseId)
+            copy(
+                chooseId = chooseId,
+                gistTableInfo = gistTableInfo.filterNot { it.id == id }
+                )
+        }
+    }
+
 
     fun onItemClicked(id: String) {
         setState {
@@ -77,6 +114,9 @@ internal class RootStore  {
                 GistTitleItem(name = "Some text 5", id = "5"),
                 GistTitleItem(name = "Some text 6", id = "6"),
                 GistTitleItem(name = "Some text 7", id = "7"),
+                GistTitleItem(name = "Some text 8", id = "8"),
+                GistTitleItem(name = "Some text 9", id = "9"),
+                GistTitleItem(name = "Some text 10", id = "10"),
             ),
             spaceName = "_spaceName",
             tagList = arrayListOf("tag1", "tag2"),
