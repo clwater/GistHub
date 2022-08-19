@@ -12,10 +12,12 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import enity.GistInfoItem
 import enity.GistTableInfoItem
@@ -44,6 +46,7 @@ internal fun MainContent(
                     )
 
                 }
+                val inEdit = gists.find { it.id == chooseId } != null && gists.find { it.id == chooseId }!!.inEdit
                 Box(modifier = Modifier.padding(12.dp).weight(1f)){
                     Column {
                         val listState = rememberLazyListState()
@@ -55,22 +58,32 @@ internal fun MainContent(
                                 )
                             }
                         }
-//                        Row(modifier = Modifier.horizontalScroll(rememberScrollState())){
-//                            gists.forEach {
-//                                SpacesTitleBar(item = it,
-//                                    onSpaceTitleChange = onSpaceTitleChange,
-//                                    onSpaceClose = onSpaceClose,
-//                                )
-//                                Text(text = it.spaceName)
-//                            }
-//                        }
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                        ){
-                            Text(text = spaceName, modifier = Modifier.weight(1f))
-                            Button(onClick = {
-                                onSpaceEditChange(chooseId, true)
-                            }){
+                        ) {
+                            Text(text = spaceName, modifier = Modifier.weight(1f),)
+                            val text = ""
+                            Row {
+                                OutlinedTextField(
+                                    TextFieldValue(text = text),
+                                    value = text,
+                                    onValueChange = {},
+                                    modifier = Modifier,
+                                    label = "123")
+                            }
+                            Button(
+                                modifier = Modifier,
+                                enabled = inEdit,
+                                onClick = {
+                                    onSpaceEditChange(chooseId, false)
+                                }) {
+                                Text("Save")
+                            }
+                            Button(
+                                enabled = !inEdit,
+                                onClick = {
+                                    onSpaceEditChange(chooseId, true)
+                                }) {
                                 Text("Edit")
                             }
                         }
@@ -135,7 +148,7 @@ private fun GistListContent(
 ){
     Box{
         val listState = rememberLazyListState()
-        LazyColumn(state = listState) {
+        LazyColumn(state = listState, modifier = Modifier.height(1000.dp)) {
             items(items){ item ->
                 GistInfoItem(item = item)
                 Divider()

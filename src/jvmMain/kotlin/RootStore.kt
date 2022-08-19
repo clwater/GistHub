@@ -11,12 +11,16 @@ internal class RootStore  {
         private set
 
     data class RootState(
+        //左侧spaceName显示
         val items: List<GistTitleItem> = emptyList(),
+
         val inputText: String = "",
+        //选择的gistId
         val chooseId: String = "",
         val spaceName : String = "",
         val tagList: List<String> = emptyList(),
-        val gistTableInfo: List<GistTableInfoItem> = emptyList()
+        //右侧显示的gist信息
+        val gistTableInfo: List<GistTableInfoItem> = emptyList(),
     )
 
     //获取显示的数据
@@ -42,12 +46,7 @@ internal class RootStore  {
     }
     fun onSpaceEditChange(id: String, inEdit: Boolean){
         setState {
-            gistTableInfo.forEach { item ->
-                if (item.id == id){
-                    item.inEdit = inEdit
-                }
-            }
-            copy(gistTableInfo = gistTableInfo)
+            updateGists(id) {it.copy(inEdit = inEdit)}
         }
     }
 
@@ -125,4 +124,12 @@ internal class RootStore  {
     private inline fun setState(update: RootState.() -> RootState) {
         state = state.update()
     }
+
+    //更新子gist信息
+    private fun RootState.updateGists(id: String, transformer: (GistTableInfoItem) -> GistTableInfoItem): RootState =
+        copy(gistTableInfo = gistTableInfo.updateGists(id = id, transformer = transformer))
+
+    //更新子gist信息
+    private fun List<GistTableInfoItem>.updateGists(id: String, transformer: (GistTableInfoItem) -> GistTableInfoItem): List<GistTableInfoItem> =
+        map { item -> if (item.id == id) transformer(item) else item }
 }
