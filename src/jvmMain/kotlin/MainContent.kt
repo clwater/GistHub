@@ -3,7 +3,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import enity.GistTitleItem
 import androidx.compose.foundation.lazy.items
@@ -13,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.OutlinedTextField
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.Color
@@ -25,21 +25,22 @@ import enity.GistTableInfoItem
 @Composable
 internal fun MainContent(
     modifier: Modifier = Modifier,
-    items : List<GistTitleItem>,
-    gists : List<GistTableInfoItem>,
+    items: List<GistTitleItem>,
+    gists: List<GistTableInfoItem>,
     onItemClicked: (id: String) -> Unit,
     spaceName: String,
     chooseId: String,
     onAddItemClicked: () -> Unit,
     onSpaceTitleChange: (id: String) -> Unit,
-    onSpaceEditChange: (id: String, inEdit:  Boolean) -> Unit,
+    onSpaceEditChange: (id: String, inEdit: Boolean) -> Unit,
     onSpaceClose: (id: String) -> Unit,
-){
-    Column(){
+    onSpaceNameChange: (id: String, name: String) -> Unit,
+) {
+    Column() {
         TopAppBar(title = { Text(text = "Todo List") })
         Box(Modifier.weight(1F)) {
             Row {
-                Box(modifier = Modifier.width(300.dp)){
+                Box(modifier = Modifier.width(300.dp)) {
                     ListContent(
                         items = items,
                         onItemClicked = onItemClicked,
@@ -47,12 +48,13 @@ internal fun MainContent(
 
                 }
                 val inEdit = gists.find { it.id == chooseId } != null && gists.find { it.id == chooseId }!!.inEdit
-                Box(modifier = Modifier.padding(12.dp).weight(1f)){
+                Box(modifier = Modifier.padding(12.dp).weight(1f)) {
                     Column {
                         val listState = rememberLazyListState()
                         LazyRow(state = listState) {
-                            items(gists){
-                                SpacesTitleBar(item = it,
+                            items(gists) {
+                                SpacesTitleBar(
+                                    item = it,
                                     onSpaceTitleChange = onSpaceTitleChange,
                                     onSpaceClose = onSpaceClose,
                                 )
@@ -61,16 +63,29 @@ internal fun MainContent(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(text = spaceName, modifier = Modifier.weight(1f),)
-                            val text = ""
-                            Row {
+                            if (inEdit) {
+
+                                var text by remember {
+                                    mutableStateOf(
+                                        gists.find { it.id == chooseId }!!.spaceName
+                                    )
+                                }
+
                                 OutlinedTextField(
-                                    TextFieldValue(text = text),
                                     value = text,
-                                    onValueChange = {},
-                                    modifier = Modifier,
-                                    label = "123")
+                                    modifier = Modifier
+                                        .weight(weight = 1F),
+                                    onValueChange = {
+                                        text = it
+                                        onSpaceNameChange(chooseId, text)
+                                    },
+                                    label = { Text(text = "New Space Name($spaceName)") },
+                                )
+
+                            } else {
+                                Text(text = spaceName, modifier = Modifier.weight(1f))
                             }
+
                             Button(
                                 modifier = Modifier,
                                 enabled = inEdit,
@@ -88,7 +103,7 @@ internal fun MainContent(
                             }
                         }
                         gists.forEach {
-                            if (it.isShow){
+                            if (it.isShow) {
                                 GistListContent(items = it.gists)
                             }
                         }
@@ -100,13 +115,14 @@ internal fun MainContent(
         Input(onAddClicked = onAddItemClicked)
     }
 }
+
 //Space标题栏
 @Composable
 private fun SpacesTitleBar(
     item: GistTableInfoItem,
     onSpaceTitleChange: (id: String) -> Unit,
     onSpaceClose: (id: String) -> Unit
-    ) = Surface(
+) = Surface(
     color = if (item.isShow && item.inEdit) {
         Color.Red
     } else if (item.isShow && !item.inEdit) {
@@ -116,16 +132,17 @@ private fun SpacesTitleBar(
     } else {
         Color.Transparent
     }
-){
+) {
     Row(
         modifier = Modifier.padding(4.dp)
             .clickable {
                 onSpaceTitleChange(item.id)
             },
-        verticalAlignment = Alignment.CenterVertically){
-        if(item.inEdit){
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (item.inEdit) {
             Text(text = item.spaceName + "(未保存)")
-        }else{
+        } else {
             Text(text = item.spaceName)
         }
         Icon(
@@ -145,11 +162,11 @@ private fun SpacesTitleBar(
 @Composable
 private fun GistListContent(
     items: List<GistInfoItem>
-){
-    Box{
+) {
+    Box {
         val listState = rememberLazyListState()
         LazyColumn(state = listState, modifier = Modifier.height(1000.dp)) {
-            items(items){ item ->
+            items(items) { item ->
                 GistInfoItem(item = item)
                 Divider()
             }
@@ -164,17 +181,17 @@ private fun GistListContent(
 
 @Composable
 private fun ListContent(
-    items : List<GistTitleItem>,
+    items: List<GistTitleItem>,
     onItemClicked: (id: String) -> Unit,
 
-){
-    Box{
+    ) {
+    Box {
         val listState = rememberLazyListState()
         LazyColumn(state = listState) {
-            items(items){ item ->
+            items(items) { item ->
                 Item(item = item,
-                    onClicked = {onItemClicked(item.id)}
-                    )
+                    onClicked = { onItemClicked(item.id) }
+                )
                 Divider()
             }
 
@@ -188,20 +205,22 @@ private fun ListContent(
 
 @Composable
 private fun GistInfoItem(
-    item : GistInfoItem
-){
-    Text(text = item.name,
+    item: GistInfoItem
+) {
+    Text(
+        text = item.name,
         modifier = Modifier.height(100.dp)
     )
 }
 
 @Composable
 private fun Item(
-    item : GistTitleItem,
+    item: GistTitleItem,
     onClicked: () -> Unit,
-){
-    Row(modifier = Modifier.clickable(onClick = onClicked).fillMaxWidth()){
-        Text(text = item.name,
+) {
+    Row(modifier = Modifier.clickable(onClick = onClicked).fillMaxWidth()) {
+        Text(
+            text = item.name,
             modifier = Modifier.height(100.dp)
         )
     }
@@ -212,7 +231,7 @@ private fun Item(
 @Composable
 private fun Input(
     onAddClicked: () -> Unit
-){
+) {
     IconButton(onClick = onAddClicked) {
         Icon(
             imageVector = Icons.Default.Add,

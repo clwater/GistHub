@@ -17,7 +17,7 @@ internal class RootStore  {
         val inputText: String = "",
         //选择的gistId
         val chooseId: String = "",
-        val spaceName : String = "",
+        var spaceName : String = "",
         val tagList: List<String> = emptyList(),
         //右侧显示的gist信息
         val gistTableInfo: List<GistTableInfoItem> = emptyList(),
@@ -40,6 +40,7 @@ internal class RootStore  {
                 item.isShow = item.id == id
             }
             copy(
+                spaceName = gistTableInfo.find { it.id == chooseId }!!.spaceName,
                 chooseId = id
             )
         }
@@ -47,6 +48,13 @@ internal class RootStore  {
     fun onSpaceEditChange(id: String, inEdit: Boolean){
         setState {
             updateGists(id) {it.copy(inEdit = inEdit)}
+        }
+    }
+
+    fun onSpaceNameChange(id: String, name: String){
+        setState {
+            updateGists(id) {it.copy(spaceName = name)}
+            copy(spaceName = name)
         }
     }
 
@@ -64,20 +72,25 @@ internal class RootStore  {
         }
     }
 
-
+    //左侧item点击
     fun onItemClicked(id: String) {
         setState {
             var inCache = false
+            var name = ""
             gistTableInfo.forEach { item ->
                 if (item.id == id){
                     item.isShow = true
                     inCache = true
+                    name = item.spaceName
                 }else{
                     item.isShow = false
                 }
             }
             if(inCache){
-                copy(chooseId = id)
+                copy(
+                    chooseId = id,
+                    spaceName = name
+                    )
             }else{
                 val newItem = GistTableInfoItem(spaceName = "spaceName $id",
                     gists = getShowGistInfo(id),
@@ -85,7 +98,8 @@ internal class RootStore  {
                     id = id
                 )
                 copy(chooseId = id,
-                    gistTableInfo = gistTableInfo + newItem
+                    gistTableInfo = gistTableInfo + newItem,
+                    spaceName = newItem.spaceName
                     )
 
             }
