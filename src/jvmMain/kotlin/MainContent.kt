@@ -21,6 +21,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import enity.GistInfoItem
 import enity.GistTableInfoItem
+import androidx.compose.material.TextField
 
 @Composable
 internal fun MainContent(
@@ -215,9 +216,20 @@ private fun ListContent(
 private fun GistInfoItem(
     item: GistInfoItem
 ) {
+
     Text(
         text = item.name,
-        modifier = Modifier.height(100.dp)
+    )
+    var text by remember { mutableStateOf(item.text) }
+
+    OutlinedTextField(
+        value =  text,
+        modifier = Modifier.fillMaxWidth().sizeIn(minHeight = 192.dp, maxHeight = 394.dp),
+        onValueChange = {
+            text = it
+//            onSpaceNameChange(chooseId, text)
+        },
+//        label = { Text(text = "Enter Space Name") },
     )
 }
 
