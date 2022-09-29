@@ -30,11 +30,18 @@ internal fun MainContent(
     onItemClicked: (id: String) -> Unit,
     spaceName: String,
     chooseId: String,
+    //添加item按钮点击
     onAddItemClicked: () -> Unit,
+    //右侧title点击
     onSpaceTitleChange: (id: String) -> Unit,
+    //右侧Edit点击
     onSpaceEditChange: (id: String, inEdit: Boolean) -> Unit,
     onSpaceClose: (id: String) -> Unit,
+    //Space 名称更新
     onSpaceNameChange: (id: String, name: String) -> Unit,
+
+    //保存Space更新
+    saveSpaceInfo: (id: String) -> Unit,
 ) {
     Column() {
         TopAppBar(title = { Text(text = "Todo List") })
@@ -79,7 +86,7 @@ internal fun MainContent(
                                         text = it
                                         onSpaceNameChange(chooseId, text)
                                     },
-                                    label = { Text(text = "New Space Name($spaceName)") },
+                                    label = { Text(text = "Enter Space Name") },
                                 )
 
                             } else {
@@ -90,7 +97,8 @@ internal fun MainContent(
                                 modifier = Modifier,
                                 enabled = inEdit,
                                 onClick = {
-                                    onSpaceEditChange(chooseId, false)
+                                    saveSpaceInfo(chooseId)
+//                                    onSpaceEditChange(chooseId, false)
                                 }) {
                                 Text("Save")
                             }

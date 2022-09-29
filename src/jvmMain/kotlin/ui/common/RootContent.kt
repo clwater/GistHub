@@ -25,6 +25,7 @@ fun RootContent(modifier: Modifier = Modifier) {
         onSpaceEditChange = model::onSpaceEditChange,
         onSpaceClose = model::onSpaceClose,
         onSpaceNameChange = model::onSpaceNameChange,
+        saveSpaceInfo = model::saveSpaceInfo,
     )
 
 

@@ -4,6 +4,7 @@ import androidx.compose.runtime.setValue
 import enity.GistInfoItem
 import enity.GistTableInfoItem
 import enity.GistTitleItem
+import org.jetbrains.skia.impl.Log
 
 
 internal class RootStore  {
@@ -21,39 +22,55 @@ internal class RootStore  {
         val tagList: List<String> = emptyList(),
         //右侧显示的gist信息
         val gistTableInfo: List<GistTableInfoItem> = emptyList(),
+        //todo
+        //右侧显示的gist信息(原始), 用于比对更新内容
+        val gistTableInfoBase: List<GistTableInfoItem> = emptyList(),
     )
 
     //获取显示的数据
     //todo 接口获取
     fun getShowGistInfo(id: String): List<GistInfoItem>{
         return arrayListOf(
-            GistInfoItem(name = "_name_1  $id",text = "_text_1  $id"),
-            GistInfoItem(name = "_name_2  $id",text = "_text_2  $id"),
-            GistInfoItem(name = "_name_3  $id",text = "_text_3  $id"),
+            GistInfoItem(name = "_name_1  $id",text = "_text_1  $id", id = "_1_ $id"),
+            GistInfoItem(name = "_name_2  $id",text = "_text_2  $id", id = "_2_ $id"),
+            GistInfoItem(name = "_name_3  $id",text = "_text_3  $id", id = "_3_ $id"),
         )
     }
 
     //space title 选择
     fun onSpaceTitleChange(id: String){
         setState {
+            val showName = gistTableInfo.find { it.id == id }?.spaceName
             gistTableInfo.forEach { item ->
                 item.isShow = item.id == id
             }
             copy(
-                spaceName = gistTableInfo.find { it.id == chooseId }!!.spaceName,
+                spaceName = showName.toString(),
                 chooseId = id
             )
         }
     }
     fun onSpaceEditChange(id: String, inEdit: Boolean){
         setState {
-            updateGists(id) {it.copy(inEdit = inEdit)}
+            updateGists(id = id) {it.copy(inEdit = inEdit)}
         }
     }
 
     fun onSpaceNameChange(id: String, name: String){
         setState {
-            updateGists(id) {it.copy(spaceName = name)}
+
+            gistTableInfo.forEach { item ->
+                if (item.id == id){
+                    item.spaceName = name
+                }
+            }
+            items.forEach { item ->
+                if (item.id == id){
+                    item.name = name
+                }
+            }
+            //为啥不行啊updateGists
+            updateGists(id = id) {it.copy(spaceName = name)}
             copy(spaceName = name)
         }
     }
@@ -70,6 +87,11 @@ internal class RootStore  {
                 gistTableInfo = gistTableInfo.filterNot { it.id == id }
                 )
         }
+    }
+
+    //保存Space更新信息
+    fun saveSpaceInfo(chooseId: String){
+        onSpaceEditChange(chooseId, false)
     }
 
     //左侧item点击
@@ -146,4 +168,5 @@ internal class RootStore  {
     //更新子gist信息
     private fun List<GistTableInfoItem>.updateGists(id: String, transformer: (GistTableInfoItem) -> GistTableInfoItem): List<GistTableInfoItem> =
         map { item -> if (item.id == id) transformer(item) else item }
+
 }
