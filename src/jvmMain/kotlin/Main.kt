@@ -1,5 +1,6 @@
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.window.*
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -11,7 +12,6 @@ import androidx.compose.ui.unit.dp
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import ui.common.RootContent
 import utils.ConfigFile
 
 
@@ -25,9 +25,7 @@ fun main() = application {
 		icon = BitmapPainter(useResource("ic_launcher.png", ::loadImageBitmap)),
 	) {
 		MaterialTheme {
-			RootContent(
-				modifier = Modifier.fillMaxSize()
-			)
+			Text("Text")
 		}
 	}
 }
